@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paint Program</title>
+<style>
+  body {
+    background-color: yellow;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  canvas {
+    border: 1px solid black;
+    margin: 10px;
+  }
+  textarea {
+    width: 500px;
+    height: 100px;
+    margin: 10px;
+    padding: 10px;
+    font-size: 16px;
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin: 10px;
+  }
+</style>
+</head>
+<body>
+<input type="file" id="file-selector" >
+<button id="saves">save</button>
+
+<canvas id="colorPalette" width="128" height="128"></canvas>
+<canvas id="paintArea" width="256" height="256"></canvas>
+<textarea id="hexOutput" placeholder="Hex output/input will appear here"></textarea>
+<div>
+  <button id="intoButton">Into</button>
+  <button id="fromButton">From</button>
+  <button id="clearButton">Clear</button>
+  
+</div>
+
+<script>
+const vgaColors = [
+  '#000000', '#0000AA', '#00AA00', '#00AAAA', '#AA0000', '#AA00AA', '#AA5500', '#AAAAAA',
+  '#555555', '#5555FF', '#55FF55', '#55FFFF', '#FF5555', '#FF55FF', '#FFFF55', '#FFFFFF'
+];
+
+const colorPalette = document.getElementById('colorPalette');
+const paintArea = document.getElementById('paintArea');
+const hexOutput = document.getElementById('hexOutput');
+const intoButton = document.getElementById('intoButton');
+const fromButton = document.getElementById('fromButton');
+const clearButton = document.getElementById('clearButton');
+
+let selectedColorIndex = 0;
+const paintArray = Array(32).fill(null).map(() => Array(32).fill(0));
+
+const drawPalette = () => {
+  const ctx = colorPalette.getContext('2d');
+  for (let i = 0; i < vgaColors.length; i++) {
+    ctx.fillStyle = vgaColors[i];
+    ctx.fillRect((i % 4) * 32, Math.floor(i / 4) * 32, 32, 32);
+  }
+};
+
+const drawPaintArea = () => {
+  const ctx = paintArea.getContext('2d');
+  for (let y = 0; y < 32; y++) {
+    for (let x = 0; x < 32; x++) {
+      ctx.fillStyle = vgaColors[paintArray[y][x]];
+      ctx.fillRect(x * 8, y * 8, 8, 8);
+    }
+  }
+};
+
+colorPalette.addEventListener('click', (e) => {
+  const x = Math.floor(e.offsetX / 32);
+  const y = Math.floor(e.offsetY / 32);
+  selectedColorIndex = y * 4 + x;
+});
+
+paintArea.addEventListener('click', (e) => {
+  const x = Math.floor(e.offsetX / 8);
+  const y = Math.floor(e.offsetY / 8);
+  paintArray[y][x] = selectedColorIndex;
+  drawPaintArea();
+});
+
+intoButton.addEventListener('click', () => {
+  let hexString = '';
+  for (let y = 0; y < 32; y++) {
+    let line = paintArray[y].map(value => value.toString(16).padStart(2, '0')).join(',');
+    hexString += line + '\n';
+  }
+  hexOutput.value = hexString.trim();
+});
+
+fromButton.addEventListener('click', () => {
+  const lines = hexOutput.value.trim().split('\n');
+  for (let y = 0; y < 32; y++) {
+    const values = lines[y]?.split(',') || [];
+    for (let x = 0; x < 32; x++) {
+      const value = values[x] ? parseInt(values[x], 16) : 0;
+      paintArray[y][x] = isNaN(value) ? 0 : Math.min(value, 15);
+    }
+  }
+  drawPaintArea();
+});
+
+clearButton.addEventListener('click', () => {
+  for (let y = 0; y < 32; y++) {
+    for (let x = 0; x < 32; x++) {
+      paintArray[y][x] = 0;
+    }
+  }
+  drawPaintArea();
+  hexOutput.value = '';
+});
+
+drawPalette();
+drawPaintArea();
+</script>
+<script>
+    codeInput = document.getElementById('hexOutput');
+    const fileSelector = document.getElementById('file-selector');
+    fileSelector.addEventListener('change', (event) => {
+        const fileList = event.target.files[0];
+        
+      var reader = new FileReader();
+      reader.readAsText(fileList);
+    reader.onload =readerEvent => {
+        var values=readerEvent.target.result;
+        codeInput.value=values;
+    }
+     
+    });
+ 
+</script>
+<script>
+    const saveBtn = document.getElementById('saves');
+    
+    
+    saveBtn.addEventListener('click', function(){
+        let name =prompt("filename","new");
+        var tempLink = document.createElement("a");
+
+        var codeInput = document.getElementById("hexOutput");
+       
+       var taBlob = new Blob([codeInput.value], {type: 'text/plain'});
+       tempLink.setAttribute('href', URL.createObjectURL(taBlob));
+    tempLink.setAttribute('download', `${name.toLowerCase()}.bit`);
+    tempLink.click();
+
+    URL.revokeObjectURL(tempLink.href);
+});
+  </script>
+
+</body>
+</html>
+
