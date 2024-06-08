@@ -52,17 +52,16 @@ class BareboneBuilder:
         
     def run_kernel(self):
         self.text_area.delete(1.0, tk.END)
+        self.execute_command('sudo mkinitramfs -o ./initrd.img',True)
         self.execute_command("mkdir /mnt/isos",False)
-        self.execute_command('sudo mkinitramfs -c gzip -o ./initrd.img',True)
         self.execute_command("sudo chmod 777 my.img",False)
         self.execute_command("sudo chmod 777 /mnt/isos",False)
         self.execute_command("sudo umount /mnt/isos",False)
         self.execute_command('sudo mount ./my.img /mnt/isos -o loop=/dev/loop1 -t vfat   ',True)
         self.execute_command("unzip -u ./file/CD_root.zip -d /mnt/isos",False)
- 
-        self.execute_command('cp /vmlinuz /mnt/isos/boot',True)
+      
         
-        self.execute_command('cp ./initrd.img /mnt/isos/boot',True)
+        
         self.execute_command('cp ./file/syslinux.cfg /mnt/isos/boot/syslinux',True)
         
         self.execute_command('sudo syslinux /dev/loop1',True)
