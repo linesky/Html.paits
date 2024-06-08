@@ -1,3 +1,3 @@
-# debian.pack.build
+# debian.initrd.build
 
 initrd.img build
