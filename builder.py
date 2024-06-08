@@ -21,9 +21,9 @@ class BareboneBuilder:
         self.text_area.pack(pady=10)
 
         # Botões
-        self.build_button = tk.Button(self.root, text="Build", command=self.build_kernel)
-        self.build_button.pack(pady=5)
-
+        self.run_button = tk.Button(self.root, text="Build", command=self.build_kernel)
+        self.run_button.pack(pady=5)
+       
         self.run_button = tk.Button(self.root, text="mount", command=self.run_kernel)
         self.run_button.pack(pady=5)
 
@@ -52,22 +52,30 @@ class BareboneBuilder:
         
     def run_kernel(self):
         self.text_area.delete(1.0, tk.END)
-        self.execute_command('sudo mkinitramfs -o ./initrd.img',True)
+        self.execute_command('sudo mkinitramfs -o ./copy.img',True)
         self.execute_command("mkdir /mnt/isos",False)
+        self.execute_command("mkdir /mnt/isos2",False)
         self.execute_command("sudo chmod 777 my.img",False)
+        self.execute_command("sudo chmod 777 copy.img",False)
         self.execute_command("sudo chmod 777 /mnt/isos",False)
+        self.execute_command("sudo chmod 777 /mnt/isos2",False)
         self.execute_command("sudo umount /mnt/isos",False)
-        self.execute_command('sudo mount ./my.img /mnt/isos -o loop=/dev/loop1 -t vfat   ',True)
-        self.execute_command("unzip -u ./file/CD_root.zip -d /mnt/isos",False)
+        self.execute_command("sudo umount /mnt/isos2",False)
+        self.execute_command('sudo mount "copy.img" /mnt/isos -o loop',True)
+        self.execute_command('sudo mount ./my.img /mnt/isos2 -o loop=/dev/loop1  -t vfat ',True)
+        self.execute_command("cp -r /mnt/isos /mnt/isos2")
+        self.execute_command("unzip -u ./file/CD_root.zip -d /mnt/isos2",False)
       
         
         
-        self.execute_command('cp ./file/syslinux.cfg /mnt/isos/boot/syslinux',True)
+        self.execute_command('cp ./file/syslinux.cfg /mnt/isos2/boot/syslinux',True)
         
         self.execute_command('sudo syslinux /dev/loop1',True)
- 
+        self.execute_command("sudo umount /mnt/isos",False)
+        self.execute_command("sudo umount /mnt/isos2",False)
         #self.execute_command("nautilus --browser /mnt/isos",False)
         self.execute_command("sudo umount /mnt/isos",True)
+        self.execute_command("sudo umount /mnt/isos2",True)
         
 
     def copy_file(self):
