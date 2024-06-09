@@ -64,7 +64,7 @@ class BareboneBuilder:
         filenames="./copy.img"
         self.execute_command('sudo mount "$filename" /mnt/isos -o loop'.replace("$filename",filenames),True)
         self.execute_command('sudo mount ./my.img /mnt/isos2 -o loop=/dev/loop1  -t vfat ',True)
-        self.execute_command("cp -r /mnt/isos /mnt/isos2",True)
+        self.execute_command("cp -r /mnt/isos/* /mnt/isos2/",True)
         self.execute_command("unzip -u ./file/CD_root.zip -d /mnt/isos2",False)
       
         
