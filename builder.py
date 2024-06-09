@@ -45,7 +45,7 @@ class BareboneBuilder:
         
         f1.close()
         self.text_area.insert(tk.END,f"writing 65 mega...")
-        self.execute_command('dd if=/dev/zero of="my.img" bs=1k count=64000',True)
+        self.execute_command('dd if=/dev/zero of="my.img" bs=1k count=80000',True)
         self.execute_command('sudo mkfs.vfat "./my.img"  ',True)
         self.execute_command('sudo chmod 777 "my.img"',True)
         self.execute_command('sudo chmod 777 "f1"',True)
@@ -61,9 +61,10 @@ class BareboneBuilder:
         self.execute_command("sudo chmod 777 /mnt/isos2",False)
         self.execute_command("sudo umount /mnt/isos",False)
         self.execute_command("sudo umount /mnt/isos2",False)
-        self.execute_command('sudo mount "copy.img" /mnt/isos -o loop',True)
+        filenames="./copy.img"
+        self.execute_command('sudo mount "$filename" /mnt/isos -o loop'.replace("$filename",filenames),True)
         self.execute_command('sudo mount ./my.img /mnt/isos2 -o loop=/dev/loop1  -t vfat ',True)
-        self.execute_command("cp -r /mnt/isos /mnt/isos2")
+        self.execute_command("cp -r /mnt/isos /mnt/isos2",True)
         self.execute_command("unzip -u ./file/CD_root.zip -d /mnt/isos2",False)
       
         
